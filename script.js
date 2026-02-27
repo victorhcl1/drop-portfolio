@@ -215,20 +215,18 @@ style.textContent = `
 document.head.appendChild(style);
 
 /* STATS ANIMATION */
-function animateCounter(element, target, duration = 1500) {
+function animateCounter(element, originalText, target, duration = 1500) {
     let current = 0;
     const increment = target / (duration / 16);
-    
+    const suffix = originalText.replace(/[\d]/g, '');
+
     const timer = setInterval(() => {
         current += increment;
         if (current >= target) {
-            element.textContent = target;
+            element.textContent = originalText;
             clearInterval(timer);
         } else {
-            // Extract number format (e.g., "4+" becomes "4", "10+" becomes "10")
-            const text = element.textContent;
-            const plus = text.includes('+') ? '+' : '';
-            element.textContent = Math.floor(current) + plus;
+            element.textContent = Math.floor(current) + suffix;
         }
     }, 16);
 }
@@ -250,7 +248,7 @@ const statsObserver = new IntersectionObserver(function(entries) {
                 const numberMatch = text.match(/\d+/);
                 if (numberMatch) {
                     const target = parseInt(numberMatch[0]);
-                    animateCounter(statNumber, target);
+                    animateCounter(statNumber, text, target);
                 }
             }
         }
