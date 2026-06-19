@@ -108,17 +108,16 @@ document.addEventListener('DOMContentLoaded', function() {
 
         document.querySelectorAll('.play-btn').forEach((btn, index) => {
             const youtubeUrl = btn.getAttribute('data-youtube');
-            
+
             if (youtubeUrl) {
                 const videoId = getYoutubeVideoId(youtubeUrl);
-                
+
                 if (videoId) {
                     const thumbnail = btn.closest('.project-header').querySelector('.video-thumbnail');
                     if (thumbnail) {
                         thumbnail.src = `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`;
                     }
-                    
-             
+
                     const projectCard = btn.closest('.project-card');
                     const projectTitle = projectCard.querySelector('h3').textContent;
                     videos.push({
@@ -257,4 +256,169 @@ const statsObserver = new IntersectionObserver(function(entries) {
 
 document.querySelectorAll('.stat-card').forEach(card => {
     statsObserver.observe(card);
+});
+
+/* TILT 3D + GLARE NOS CARDS (giram e brilham seguindo o mouse, com suavização) */
+const TILT_SELECTOR = '.project-card, .about-card, .stat-card';
+const MAX_TILT = 10;   // graus
+const EASE = 0.12;     // quanto menor, mais "solto"/suave o movimento
+
+document.querySelectorAll(TILT_SELECTOR).forEach(card => {
+    card.classList.add('tilt-card');
+
+    // estado atual (renderizado) e alvo (mouse)
+    const state = { rx: 0, ry: 0, lift: 0, mx: 50, my: 50 };
+    const target = { rx: 0, ry: 0, lift: 0, mx: 50, my: 50 };
+    let running = false;
+
+    function animate() {
+        state.rx += (target.rx - state.rx) * EASE;
+        state.ry += (target.ry - state.ry) * EASE;
+        state.lift += (target.lift - state.lift) * EASE;
+        state.mx += (target.mx - state.mx) * EASE;
+        state.my += (target.my - state.my) * EASE;
+
+        const scale = 1 + (state.lift / 8) * 0.03;
+        card.style.transform =
+            `perspective(1000px) rotateX(${state.rx.toFixed(2)}deg) rotateY(${state.ry.toFixed(2)}deg) translateY(${(-state.lift).toFixed(2)}px) scale(${scale.toFixed(3)})`;
+        card.style.setProperty('--mx', state.mx.toFixed(1) + '%');
+        card.style.setProperty('--my', state.my.toFixed(1) + '%');
+
+        // continua animando enquanto ainda não chegou perto do alvo
+        const done =
+            Math.abs(target.rx - state.rx) < 0.05 &&
+            Math.abs(target.ry - state.ry) < 0.05 &&
+            Math.abs(target.lift - state.lift) < 0.05;
+
+        if (done && target.lift === 0) {
+            running = false;
+            card.style.transform = '';
+            return;
+        }
+        requestAnimationFrame(animate);
+    }
+
+    function start() {
+        if (!running) {
+            running = true;
+            requestAnimationFrame(animate);
+        }
+    }
+
+    card.addEventListener('mouseenter', function() {
+        card.classList.add('is-tilting');
+        target.lift = 8;
+        start();
+    });
+
+    card.addEventListener('mousemove', function(e) {
+        const rect = card.getBoundingClientRect();
+        const px = (e.clientX - rect.left) / rect.width;  // 0..1
+        const py = (e.clientY - rect.top) / rect.height;  // 0..1
+        target.ry = (px - 0.5) * 2 * MAX_TILT;
+        target.rx = (0.5 - py) * 2 * MAX_TILT;
+        target.mx = px * 100;
+        target.my = py * 100;
+        target.lift = 8;
+        start();
+    });
+
+    card.addEventListener('mouseleave', function() {
+        card.classList.remove('is-tilting');
+        target.rx = 0;
+        target.ry = 0;
+        target.lift = 0;
+        start();
+    });
+});
+
+/* GLOW QUE SEGUE O MOUSE NAS CATEGORIAS DE SKILL */
+document.querySelectorAll('.skill-category').forEach(cat => {
+    cat.addEventListener('mousemove', function(e) {
+        const rect = cat.getBoundingClientRect();
+        const px = ((e.clientX - rect.left) / rect.width) * 100;
+        const py = ((e.clientY - rect.top) / rect.height) * 100;
+        cat.style.setProperty('--mx', px.toFixed(1) + '%');
+        cat.style.setProperty('--my', py.toFixed(1) + '%');
+    });
+});
+
+/* FAÍSCAS / BRASAS SUBINDO NA TELA INICIAL */
+document.querySelectorAll('.sparks-canvas').forEach(canvas => {
+    const ctx = canvas.getContext('2d');
+    const hero = canvas.parentElement;
+    let particles = [];
+    let raf;
+
+    function resize() {
+        canvas.width = hero.offsetWidth;
+        canvas.height = hero.offsetHeight;
+    }
+    resize();
+    window.addEventListener('resize', resize);
+
+    function createParticle() {
+        const purple = Math.random() > 0.4;
+        return {
+            x: Math.random() * canvas.width,
+            y: canvas.height + Math.random() * 40,
+            size: Math.random() * 2.2 + 0.6,
+            speedY: Math.random() * 0.8 + 0.3,
+            drift: (Math.random() - 0.5) * 0.4,
+            life: 0,
+            maxLife: Math.random() * 200 + 120,
+            hue: purple ? 270 + Math.random() * 25 : 285 + Math.random() * 20,
+            flicker: Math.random() * 0.04 + 0.01
+        };
+    }
+
+    const COUNT = Math.min(70, Math.floor(canvas.width / 22));
+    for (let i = 0; i < COUNT; i++) {
+        const p = createParticle();
+        p.y = Math.random() * canvas.height;
+        p.life = Math.random() * p.maxLife;
+        particles.push(p);
+    }
+
+    function draw() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        particles.forEach((p, i) => {
+            p.y -= p.speedY;
+            p.x += p.drift;
+            p.life++;
+
+            const lifeRatio = p.life / p.maxLife;
+            let alpha = Math.sin(lifeRatio * Math.PI); // fade in/out
+            alpha *= 0.8 + Math.sin(p.life * p.flicker) * 0.2; // cintila
+            alpha = Math.max(0, alpha);
+
+            const glow = p.size * 4;
+            const grad = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, glow);
+            grad.addColorStop(0, `hsla(${p.hue}, 90%, 75%, ${alpha})`);
+            grad.addColorStop(0.4, `hsla(${p.hue}, 85%, 60%, ${alpha * 0.5})`);
+            grad.addColorStop(1, `hsla(${p.hue}, 80%, 50%, 0)`);
+            ctx.fillStyle = grad;
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, glow, 0, Math.PI * 2);
+            ctx.fill();
+
+            if (p.life >= p.maxLife || p.y < -10) {
+                particles[i] = createParticle();
+            }
+        });
+        raf = requestAnimationFrame(draw);
+    }
+    draw();
+});
+
+/* GLOW QUE SEGUE O MOUSE NAS HEROS (index e projetos) */
+document.querySelectorAll('.hero, .hero-projects').forEach(hero => {
+    const heroGlow = hero.querySelector('.hero-glow');
+    if (!heroGlow) return;
+    hero.addEventListener('mousemove', function(e) {
+        const rect = hero.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        heroGlow.style.transform = `translate(${x}px, ${y}px) translate(-50%, -50%)`;
+    });
 });
