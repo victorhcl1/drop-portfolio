@@ -37,6 +37,7 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    gap: 1rem;
 }
 
 .logo {
@@ -60,6 +61,112 @@ body {
 
 .nav-links a:hover {
     color: #c084fc;
+}
+
+.nav-social-links {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-left: 1rem;
+}
+
+.nav-social-link,
+.footer-social-link {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    color: #f0f0f0;
+    border: 1px solid rgba(167, 139, 250, 0.16);
+    background: rgba(255, 255, 255, 0.03);
+    transition: transform 0.3s ease, border-color 0.3s ease, background 0.3s ease, color 0.3s ease;
+}
+
+.nav-social-link:hover,
+.footer-social-link:hover {
+    transform: translateY(-2px);
+    border-color: rgba(192, 132, 252, 0.55);
+    background: rgba(192, 132, 252, 0.12);
+    color: #c084fc;
+}
+
+.social-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.social-icon svg,
+.social-icon img {
+    width: 100%;
+    height: 100%;
+    display: block;
+}
+
+.social-icon-x {
+    width: 18px;
+    height: 18px;
+}
+
+.social-icon-discord {
+    width: 18px;
+    height: 18px;
+}
+
+.social-icon-large {
+    width: 82px;
+    height: 82px;
+    margin: 0 auto 1.5rem;
+    border-radius: 50%;
+    border: 2px solid rgba(167, 139, 250, 0.28);
+    background: linear-gradient(135deg, rgba(124, 58, 237, 0.14), rgba(192, 132, 252, 0.08));
+    color: #f0f0f0;
+    box-shadow: 0 0 20px rgba(192, 132, 252, 0.12);
+}
+
+.social-card {
+    min-height: 245px;
+    width: 80%;
+    box-sizing: border-box;
+}
+
+.x-card {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(14, 14, 14, 0.95) 100%);
+    border: 1.5px solid rgba(167, 139, 250, 0.16);
+    max-width: 400px;
+    margin: 0 auto;
+    padding: 2.5rem 1.5rem;
+    text-align: center;
+}
+
+.x-card .x-icon {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.03));
+    border-color: rgba(255, 255, 255, 0.16);
+    overflow: hidden;
+}
+
+.x-card .x-icon img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+    border-radius: 50%;
+    filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.35));
+}
+
+.x-card .discord-link {
+    color: #e5e7eb;
+    border-color: rgba(167, 139, 250, 0.28);
+}
+
+.x-card .discord-link:hover {
+    color: #ffffff;
+    background: rgba(192, 132, 252, 0.14);
+    border-color: rgba(192, 132, 252, 0.45);
+    box-shadow: 0 0 22px rgba(192, 132, 252, 0.12);
 }
 
 /* HERO SECTION */
@@ -533,6 +640,14 @@ footer {
     text-align: center;
     color: #6b7280;
     border-top: 1px solid rgba(167, 139, 250, 0.1);
+}
+
+.footer-social-links {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
 }
 
 .video-thumbnail {
@@ -1290,6 +1405,23 @@ footer {
     .nav-links {
         gap: 1rem;
         font-size: 0.8rem;
+    }
+
+    .nav-social-links {
+        margin-left: 0.5rem;
+        gap: 0.5rem;
+    }
+
+    .nav-social-link,
+    .footer-social-link {
+        width: 36px;
+        height: 36px;
+    }
+
+    .social-icon-x,
+    .social-icon-discord {
+        width: 16px;
+        height: 16px;
     }
     
     .projects-grid {
