@@ -85,6 +85,20 @@ body {
     transition: transform 0.3s ease, border-color 0.3s ease, background 0.3s ease, color 0.3s ease;
 }
 
+.nav-social-link .social-icon-x {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    overflow: hidden;
+}
+
+.nav-social-link .social-icon-x img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+}
+
 .nav-social-link:hover,
 .footer-social-link:hover {
     transform: translateY(-2px);
